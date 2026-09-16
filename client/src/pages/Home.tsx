@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import Web3WalletCard from "@/components/Web3WalletCard";
 import ERC20BalanceCard from "@/components/ERC20BalanceCard";
+import ChainFavoritesCard from "@/components/ChainFavoritesCard";
+import ERC20TransferCard from "@/components/ERC20TransferCard";
 import {
   ArrowDownToLine,
   ArrowUpRight,
@@ -128,6 +130,8 @@ export default function Home() {
 
           <Web3WalletCard />
           <ERC20BalanceCard />
+          <ChainFavoritesCard />
+          <ERC20TransferCard />
 
           <section className="quick-row">{quickActions.map(({ label, icon: Icon, tone }) => <button className="quick-action" key={label} onClick={() => action(label)}><span className={`quick-icon ${tone}`}><Icon size={20} /></span><span>{label}</span></button>)}</section>
 
