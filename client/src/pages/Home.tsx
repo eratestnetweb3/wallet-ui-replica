@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import Web3WalletCard from "@/components/Web3WalletCard";
 import {
   ArrowDownToLine,
   ArrowUpRight,
@@ -123,6 +124,8 @@ export default function Home() {
             <div className="mini-stat-card"><div className="stat-top"><span>PORTFOLIO APY</span><Sparkles size={16} /></div><strong>8.42%</strong><p><span>+1.28%</span> this month</p><MiniChart color="#a9a6ff" path="M2 26 C 14 21, 18 25, 28 18 S 43 21, 54 12 S 67 14, 82 3" /></div>
             <div className="mini-stat-card dark-stat"><div className="stat-top"><span>REWARDS EARNED</span><Gift size={16} /></div><strong>$124.80</strong><p><span>+ $18.20</span> this month</p><div className="reward-orb"><span /></div></div>
           </section>
+
+          <Web3WalletCard />
 
           <section className="quick-row">{quickActions.map(({ label, icon: Icon, tone }) => <button className="quick-action" key={label} onClick={() => action(label)}><span className={`quick-icon ${tone}`}><Icon size={20} /></span><span>{label}</span></button>)}</section>
 
