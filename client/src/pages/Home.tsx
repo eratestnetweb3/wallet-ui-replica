@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 import Web3WalletCard from "@/components/Web3WalletCard";
 import ERC20BalanceCard from "@/components/ERC20BalanceCard";
 import ChainFavoritesCard from "@/components/ChainFavoritesCard";
@@ -76,6 +77,7 @@ function CoinMark({ color, children }: { color: string; children: React.ReactNod
 }
 
 export default function Home() {
+  const [, setLocation] = useLocation();
   const [active, setActive] = useState("Home");
   const [showMore, setShowMore] = useState(false);
   const [hideBalance, setHideBalance] = useState(false);
@@ -86,7 +88,10 @@ export default function Home() {
 
   const action = (label: string) => {
     if (label === "More") setShowMore(true);
-    else toast.success(`${label} is ready`, { description: "This demo action is wired for the wallet flow." });
+    else if (label === "Rewards") setLocation("/wallet-ui-replica/pay");
+    else if (label === "dApps") setLocation("/wallet-ui-replica/trade");
+    else if (label === "QR pay") setLocation("/wallet-ui-replica/pay");
+    else toast.success(`${label} is ready`, { description: "This action is now part of the wallet flow." });
   };
 
   return (
@@ -96,11 +101,11 @@ export default function Home() {
         <div className="account-pill"><div className="avatar">S</div><div className="account-copy"><b>samira.eth</b><span>0x84...a3E9</span></div><ChevronDown size={16} /></div>
         <div className="sidebar-label">Workspace</div>
         <nav className="side-nav">
-          {navItems.map(({ label, icon: Icon }) => <button key={label} className={active === label ? "active" : ""} onClick={() => setActive(label)}><Icon size={18} /><span>{label}</span>{label === "Trade" && <span className="nav-dot" />}</button>)}
+          {navItems.map(({ label, icon: Icon }) => <button key={label} className={active === label ? "active" : ""} onClick={() => { setActive(label); if (label !== "Home") setLocation(`/wallet-ui-replica/${label.toLowerCase()}`); }}><Icon size={18} /><span>{label}</span>{label === "Trade" && <span className="nav-dot" />}</button>)}
         </nav>
         <div className="sidebar-spacer" />
-        <button className="side-link" onClick={() => toast("Help center opened")}><CircleHelp size={18} /><span>Help center</span></button>
-        <button className="side-link" onClick={() => toast("Settings opened")}><Settings2 size={18} /><span>Settings</span></button>
+        <button className="side-link" onClick={() => setLocation("/wallet-ui-replica/help")}><CircleHelp size={18} /><span>Help center</span></button>
+        <button className="side-link" onClick={() => setLocation("/wallet-ui-replica/settings")}><Settings2 size={18} /><span>Settings</span></button>
         <div className="sidebar-footer"><div className="secure-badge"><span className="secure-dot" /> Secured by Nexa Guard</div><span className="version">v2.4.0</span></div>
       </aside>
 
@@ -137,16 +142,16 @@ export default function Home() {
 
           <section className="promo-banner"><div className="promo-copy"><span className="promo-kicker"><Zap size={13} /> NEXA DROP</span><h2>Trade more.<br /><em>Pay less.</em></h2><p>Enjoy 0 fees on your first 5 swaps this week.</p><button onClick={() => toast.success("Promo activated")}>Explore offer <ArrowUpRight size={15} /></button></div><div className="promo-art"><div className="art-ring ring-one" /><div className="art-ring ring-two" /><div className="art-coin">N</div><div className="art-star">✦</div><div className="art-spark">✧</div></div><div className="promo-index"><b>01</b><span /><span /><span /></div></section>
 
-          <section className="section-block market-section"><div className="section-head"><div><span className="section-kicker">MARKETS</span><h2>Happening now <span className="live-dot" /></h2></div><button className="text-button" onClick={() => setActive("Markets")}>View all <ArrowUpRight size={15} /></button></div><div className="market-grid">{marketAssets.map((asset) => <button className="market-card" key={asset.symbol} onClick={() => toast(`${asset.name} market selected`)}><div className="market-card-top"><CoinMark color={asset.color}>{asset.symbol.slice(0, 1)}</CoinMark><span className="market-more">•••</span></div><div className="market-name">{asset.name}<small>{asset.symbol}</small></div><div className="market-bottom"><div><b>{asset.price}</b><span className="positive">{asset.change}</span></div><MiniChart color={asset.color} path={asset.chart} /></div></button>)}</div></section>
+          <section className="section-block market-section"><div className="section-head"><div><span className="section-kicker">MARKETS</span><h2>Happening now <span className="live-dot" /></h2></div><button className="text-button" onClick={() => setLocation("/wallet-ui-replica/markets")}>View all <ArrowUpRight size={15} /></button></div><div className="market-grid">{marketAssets.map((asset) => <button className="market-card" key={asset.symbol} onClick={() => setLocation("/wallet-ui-replica/markets")}><div className="market-card-top"><CoinMark color={asset.color}>{asset.symbol.slice(0, 1)}</CoinMark><span className="market-more">•••</span></div><div className="market-name">{asset.name}<small>{asset.symbol}</small></div><div className="market-bottom"><div><b>{asset.price}</b><span className="positive">{asset.change}</span></div><MiniChart color={asset.color} path={asset.chart} /></div></button>)}</div></section>
 
           <section className="section-block portfolio-section"><div className="section-head"><div><span className="section-kicker">YOUR ASSETS</span><h2>Portfolio</h2></div><div className="tab-row">{["Crypto", "Stocks", "Perps"].map((tab) => <button className={assetTab === tab ? "selected" : ""} key={tab} onClick={() => setAssetTab(tab)}>{tab}</button>)}</div></div><div className="portfolio-card"><div className="portfolio-head"><span>Asset</span><span>Balance</span><span>24h change</span></div>{assetTab !== "Crypto" ? <div className="empty-state"><Sparkles size={20} /><span>{assetTab} markets are being curated for you.</span></div> : filteredHoldings.map((item) => <button className="holding-row" key={item.ticker} onClick={() => toast(`${item.name} selected`)}><div className="holding-asset"><CoinMark color={item.color}>{item.icon}</CoinMark><div><b>{item.name}</b><span>{item.ticker}</span></div></div><div className="holding-balance"><b>{item.amount}</b><span>{item.value}</span></div><div className="holding-change"><MiniChart path="M2 22 C 14 20, 20 25, 30 16 S 46 20, 58 11 S 72 14, 82 5" /><span className="positive">{item.change}</span></div><ArrowUpRight className="row-arrow" size={16} /></button>)}</div></section>
 
           <section className="bottom-grid"><div className="activity-card"><div className="section-head"><div><span className="section-kicker">ACTIVITY</span><h2>Recent activity</h2></div><button className="text-button" onClick={() => toast("Activity history opened")}>See all <ArrowUpRight size={15} /></button></div><div className="activity-list"><div className="activity-item"><span className="activity-icon mint"><ArrowDownToLine size={16} /></span><div><b>Received USDC</b><span>Today, 10:42 AM</span></div><strong className="positive">+$420.00</strong></div><div className="activity-item"><span className="activity-icon lilac"><Send size={16} /></span><div><b>Sent ETH</b><span>Yesterday, 04:18 PM</span></div><strong>-$186.40</strong></div><div className="activity-item"><span className="activity-icon peach"><ShoppingBag size={16} /></span><div><b>Paid with QR</b><span>Sep 14, 12:05 PM</span></div><strong>-$24.90</strong></div></div></div><div className="network-card"><div className="section-kicker">NETWORKS</div><h2>Connected chains</h2><div className="network-visual"><div className="network-lines" /><div className="network-circle central">N</div>{["ETH", "SOL", "BASE", "BNB"].map((chain, i) => <div className={`network-circle node node-${i}`} key={chain}>{chain.slice(0, 1)}</div>)}</div><div className="network-footer"><span><i className="online-dot" /> All systems operational</span><button onClick={() => toast("Network manager opened")}>Manage <ArrowUpRight size={14} /></button></div></div></section>
         </div>
-        <footer className="mobile-nav">{navItems.map(({ label, icon: Icon }) => <button className={active === label ? "active" : ""} key={label} onClick={() => setActive(label)}><Icon size={19} /><span>{label}</span></button>)}</footer>
+        <footer className="mobile-nav">{navItems.map(({ label, icon: Icon }) => <button className={active === label ? "active" : ""} key={label} onClick={() => { setActive(label); if (label !== "Home") setLocation(`/wallet-ui-replica/${label.toLowerCase()}`); }}><Icon size={19} /><span>{label}</span></button>)}</footer>
       </main>
 
-      {showMore && <div className="drawer-backdrop" onClick={() => setShowMore(false)}><div className="more-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="section-kicker">NEXA TOOLS</span><h2>Everything in one place</h2></div><button className="close-button" onClick={() => setShowMore(false)}><X size={19} /></button></div><div className="drawer-grid">{[{ label: "Send", icon: Send, tone: "bg-mint-soft" }, { label: "Receive", icon: ArrowDownToLine, tone: "bg-blue-soft" }, { label: "Buy crypto", icon: WalletCards, tone: "bg-lilac" }, { label: "Card", icon: CreditCard, tone: "bg-peach" }, { label: "Swap + Bridge", icon: Zap, tone: "bg-yellow-soft" }, { label: "Shop", icon: ShoppingBag, tone: "bg-pink-soft" }, { label: "Scan QR", icon: ScanLine, tone: "bg-mint-soft" }, { label: "Address book", icon: Copy, tone: "bg-blue-soft" }].map(({ label, icon: Icon, tone }) => <button key={label} onClick={() => { setShowMore(false); toast(`${label} opened`); }}><span className={`drawer-icon ${tone}`}><Icon size={20} /></span><b>{label}</b></button>)}</div><div className="drawer-tip"><Sparkles size={16} /><span><b>New:</b> Smart routing now saves an average of 0.18% per swap.</span></div></div></div>}
+      {showMore && <div className="drawer-backdrop" onClick={() => setShowMore(false)}><div className="more-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="section-kicker">NEXA TOOLS</span><h2>Everything in one place</h2></div><button className="close-button" onClick={() => setShowMore(false)}><X size={19} /></button></div><div className="drawer-grid">{[{ label: "Send", icon: Send, tone: "bg-mint-soft" }, { label: "Receive", icon: ArrowDownToLine, tone: "bg-blue-soft" }, { label: "Buy crypto", icon: WalletCards, tone: "bg-lilac" }, { label: "Card", icon: CreditCard, tone: "bg-peach" }, { label: "Swap + Bridge", icon: Zap, tone: "bg-yellow-soft" }, { label: "Shop", icon: ShoppingBag, tone: "bg-pink-soft" }, { label: "Scan QR", icon: ScanLine, tone: "bg-mint-soft" }, { label: "Address book", icon: Copy, tone: "bg-blue-soft" }].map(({ label, icon: Icon, tone }) => <button key={label} onClick={() => { setShowMore(false); setLocation(label === "Swap + Bridge" ? "/wallet-ui-replica/trade" : "/wallet-ui-replica/pay"); }}><span className={`drawer-icon ${tone}`}><Icon size={20} /></span><b>{label}</b></button>)}</div><div className="drawer-tip"><Sparkles size={16} /><span><b>New:</b> Smart routing now saves an average of 0.18% per swap.</span></div></div></div>}
     </div>
   );
 }
